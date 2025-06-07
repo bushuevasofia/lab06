@@ -50,6 +50,7 @@ if(WIN32)
     # Имя и версия продукта
     set(CPACK_PACKAGE_NAME "lab06")
     set(CPACK_PACKAGE_VERSION "1.0.0")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.rtf")
 
 endif()
 
