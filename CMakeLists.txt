@@ -51,8 +51,6 @@ if(WIN32)
     set(CPACK_PACKAGE_NAME "lab06")
     set(CPACK_PACKAGE_VERSION "1.0.0")
 
-    # Файл лицензии (в формате RTF)
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.rtf")
 endif()
 
 # Настройка DragNDrop (macOS)
