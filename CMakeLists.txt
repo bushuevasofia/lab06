@@ -59,7 +59,6 @@ endif()
 if(APPLE)
     set(CPACK_DMG_VOLUME_NAME "Lab06 Solver")
     set(CPACK_DMG_FORMAT "UDBZ")
-    set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/background.png")
 endif()
 
 include(CPack)
