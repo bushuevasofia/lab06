@@ -67,3 +67,8 @@ add_subdirectory(formatter_lib)
 add_subdirectory(formatter_ex_lib)
 add_subdirectory(solver_lib)
 add_subdirectory(solver_application)
+
+add_executable(lab06 main.cpp)
+
+install(TARGETS lab06 DESTINATION bin)
+install(FILES README.md LICENSE DESTINATION share/doc/lab06)

@@ -4,14 +4,14 @@ on:
   push:
     tags:
       - 'v*.*.*'
-      
+  workflow_dispatch:  # Для ручного запуска
+
 permissions:
   contents: write
 
 jobs:
   linux-build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,7 +20,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm dpkg cmake build-essential
-          dpkg --version
 
       - name: Configure CMake
         run: cmake -S . -B build -DCPACK_GENERATOR="DEB;RPM"
@@ -28,13 +27,14 @@ jobs:
       - name: Build
         run: cmake --build build
 
-      - name: Package
+      - name: Package DEB & RPM
         run: |
           cd build
           cpack -G DEB
           cpack -G RPM
 
-      - name: Upload assets to GitHub release
+      - name: Upload assets to GitHub Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -45,7 +45,6 @@ jobs:
 
   windows-build:
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -53,26 +52,28 @@ jobs:
       - name: Install dependencies
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-          choco install nsis
+          choco install wixtoolset
+          refreshenv
 
       - name: Create build directory
         run: mkdir build
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCPACK_GENERATOR="NSIS"
+        run: cmake -S . -B build -DCPACK_GENERATOR=WIX
 
-      - name: Build
-        run: cmake --build build
-
-      - name: Create MSI package
-        run: cd build && dir
-
-      - name: List build directory contents
+      - name: Build and Package (WiX)
         run: |
           cd build
-          cpack -G WIX
+          cmake --build .
+          cpack
 
-      - name: Upload assets to GitHub release
+      - name: Check for MSI file
+        run: |
+          cd build
+          dir *.msi
+
+      - name: Upload MSI to GitHub Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v1
         with:
           files: build/*.msi
@@ -81,14 +82,12 @@ jobs:
 
   macos-build:
     runs-on: macos-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: |
-          brew install cmake
+        run: brew install cmake
 
       - name: Create build directory
         run: mkdir build
@@ -99,13 +98,16 @@ jobs:
       - name: Build
         run: cmake --build build
 
-      - name: Create DMG package
-        run: cd build && cpack -G DragNDrop
+      - name: Package DMG
+        run: |
+          cd build
+          cpack -G DragNDrop
 
       - name: List build directory contents
         run: ls -R build
 
       - name: Upload DMG to GitHub Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v1
         with:
           files: build/*.dmg
